@@ -16,6 +16,17 @@ enum COLORCHANNEL{
     BIT24
 };
 
+enum GRAYSCALE_CONVERSION_METHOD{
+    AVERAGE,
+    LUMINOSITY
+};
+
+enum COLOR{
+    RED,
+    GREEN,
+    BLUE
+};
+
 typedef struct DIBHeader{
     uint32_t dibHeaderSize;
     uint32_t width;
@@ -61,5 +72,8 @@ void write_g(bmpImage *, char *);
 void write_b(bmpImage *, char *);
 
 void writeRGB(char *, char *);
+
+void convertRGBtoGrayScale(bmpImage *, enum GRAYSCALE_CONVERSION_METHOD);
+void singleColorChannel(bmpImage *, enum COLOR);
 
 #endif //BMP_BMP_H

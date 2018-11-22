@@ -108,9 +108,9 @@ bmpImage *getBmpBytes(char *path){
         int count = 0;
         for (int i = 0; i < (bmpHeader->dibHeader.width * bmpHeader->dibHeader.height); ++i) {
             int j = 3 * i;
-            uint8_t r = data[j++];
+            uint8_t b = data[j++];
             uint8_t g = data[j++];
-            uint8_t b = data[j];
+            uint8_t r = data[j];
 
             bytes[count].r = r;
             bytes[count].g = g;
@@ -143,6 +143,70 @@ bmpImage *getBmpBytes(char *path){
 
     return NULL;
 }
+
+
+void convertRGBtoGrayScale(bmpImage *image, enum GRAYSCALE_CONVERSION_METHOD method){
+    switch (method){
+        case AVERAGE:
+            {
+                for (int i = 0; i < (image->width * image->height); i++){
+                    uint8_t avg = (uint8_t)((image->data[i].r + image->data[i].g + image->data[i].b) / 3);
+                    image->data[i].r = avg;
+                    image->data[i].g = avg;
+                    image->data[i].b = avg;
+                }
+            }
+            break;
+        case LUMINOSITY:
+            {
+                for (int i = 0; i < (image->width * image->height); i++){
+                    image->data[i].r = (uint8_t)(0.3 * image->data[i].r);
+                    image->data[i].g = (uint8_t)(0.59 * image->data[i].g);;
+                    image->data[i].b = (uint8_t)(0.11 * image->data[i].b);;
+                }
+            }
+            break;
+    }
+}
+
+void singleColorChannel(bmpImage *image, enum COLOR color){
+    switch (color){
+        case RED:
+            {
+                for (int i = 0; i < (image->width * image->height); i++){
+                    /*if (image->data[i].r >= 0xDC){
+                        image->data[i].g = 0x00;
+                        image->data[i].b = 0x00;
+                    } else{
+                        uint8_t avg = (uint8_t)((image->data[i].r + image->data[i].g + image->data[i].b) / 3);
+                        image->data[i].r = avg;
+                        image->data[i].g = avg;
+                        image->data[i].b = avg;
+                    }*/
+                    image->data[i].g = 0x00;
+                    image->data[i].b = 0x00;
+                }
+            }
+            break;
+        case GREEN:
+            {
+                for (int i = 0; i < (image->width * image->height); i++){
+                    image->data[i].r = 0x00;
+                    image->data[i].b = 0x00;
+                }
+            }
+            break;
+        case BLUE:
+            {
+                for (int i = 0; i < (image->width * image->height); i++){
+                    image->data[i].r = 0x00;
+                    image->data[i].g = 0x00;
+                }
+            }
+            break;
+    }
+}
+
 
 void write_r(bmpImage *image, char *path){
     uint8_t *r = (uint8_t *)malloc(sizeof(uint8_t) * image->width*image->height);
@@ -276,9 +340,9 @@ void createBMPImage(imageBytes *bytes, uint32_t width, uint32_t height, char *pa
     int offSet = 54;
     for (int i = 0; i < height; ++i) {
         for (int j = 0; j < width; ++j) {
-            bmpData[offSet + ((height - i - 1) * width * 3) + (3*j)] = bytes[i * width + j].r;
+            bmpData[offSet + ((height - i - 1) * width * 3) + (3*j)] = bytes[i * width + j].b;
             bmpData[offSet + ((height - i - 1) * width * 3) + (3*j + 1)] = bytes[i * width + j].g;
-            bmpData[offSet + ((height - i - 1) * width * 3) + (3*j + 2)] = bytes[i * width + j].b;
+            bmpData[offSet + ((height - i - 1) * width * 3) + (3*j + 2)] = bytes[i * width + j].r;
         }
     }
 
